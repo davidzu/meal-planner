@@ -1,0 +1,33 @@
+<% content_for :title, "Editar miembro" %>
+
+<div class="week-toolbar">
+  <%= link_to "← Ajustes", settings_path, class: "btn btn--ghost btn--sm" %>
+  <h1 class="display" style="margin: 0;">Editar miembro</h1>
+</div>
+
+<%= form_with model: @user, url: user_path(@user), method: :patch, class: "card form-card" do |f| %>
+  <% if @user.errors.any? %>
+    <div class="toast toast--warning">
+      <ul style="margin: 0; padding-left: var(--space-4);">
+        <% @user.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :email, "Correo" %>
+    <%= f.email_field :email, required: true %>
+  </div>
+
+  <div class="field">
+    <%= f.label :role, "Rol" %>
+    <%= f.select :role, [["Planificador", "planificador"], ["Cocinero", "cocinero"]], include_blank: "—" %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit "Guardar", class: "btn" %>
+    <%= link_to "Cancelar", settings_path, class: "btn btn--ghost" %>
+  </div>
+<% end %>

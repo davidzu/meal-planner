@@ -1,0 +1,30 @@
+# Rails
+/log/*
+/tmp/*
+/storage/*
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Bundler
+/vendor/bundle
+/.bundle
+
+# Secrets and environment
+/config/master.key
+/config/credentials/*.key
+.env
+.env.*
+!.env.example
+
+# System and editor
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+
+# Node / imported assets
+/node_modules
+
+# opencode local state
+.opencode/node_modules

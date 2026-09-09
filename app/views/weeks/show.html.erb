@@ -1,0 +1,66 @@
+<% content_for :title, @week.label %>
+
+<div class="week-toolbar">
+  <div class="week-toolbar__nav">
+    <% if @previous_week %>
+      <%= link_to "‹", week_path(@previous_week, date: @previous_week.start_date), class: "btn btn--ghost btn--sm", aria: {label: "Semana anterior"} %>
+    <% end %>
+    <h1 class="display" style="margin: 0;"><%= @week.label %></h1>
+    <% if @next_week %>
+      <%= link_to "›", week_path(@next_week, date: @next_week.start_date), class: "btn btn--ghost btn--sm", aria: {label: "Siguiente semana"} %>
+    <% end %>
+  </div>
+
+  <div class="week-toolbar__actions">
+    <%= form_with url: shopping_list_week_path(@week), method: :post, style: "display: inline;" do %>
+      <%= submit_tag "Generar lista de compras", class: "btn", disabled: @week.filled_slot_count.zero? %>
+    <% end %>
+    <% if @previous_week %>
+      <%= link_to "Copiar semana anterior", copy_week_path(@week, @previous_week), class: "btn btn--ghost" %>
+    <% end %>
+  </div>
+</div>
+
+<% if @week.filled_slot_count.zero? %>
+  <div class="empty-state">
+    <div class="empty-state__icon">🍽️</div>
+    <p>Empieza por el lunes — toca un slot vacío para asignar una receta.</p>
+    <div class="empty-state__cta">
+      <%= link_to "Ver recetario", recipes_path, class: "btn" %>
+    </div>
+  </div>
+<% end %>
+
+<div class="week-grid">
+  <% @week.days.each do |day| %>
+    <div class="day-column">
+      <div class="day-column__header">
+        <div class="heading"><%= day.short_name %></div>
+        <div class="caption"><%= l(day.date, format: "%d") %></div>
+      </div>
+
+      <% Week::MEAL_TYPES.each do |meal_type| %>
+        <% menu_day = day.menu_for(meal_type) %>
+        <div class="meal-slot <%= menu_day ? "meal-slot--filled" : "meal-slot--empty" %>">
+          <span class="meal-slot__type"><%= meal_type.capitalize %></span>
+
+          <% if menu_day %>
+            <% if menu_day.recipe %>
+              <div class="recipe-card-compact">
+                <div class="recipe-card-compact__name"><%= link_to menu_day.recipe.name, menu_day.recipe %></div>
+                <div class="recipe-card-compact__meta">
+                  <%= menu_day.recipe.total_time_label %> · rinde <%= menu_day.recipe.base_servings %> · <%= menu_day.servings %> porc.
+                </div>
+                <%= button_to "Quitar", week_day_menu_day_path(@week, day, menu_day), method: :delete, class: "recipe-card-compact__remove", form: {style: "display: inline;"} %>
+              </div>
+            <% else %>
+              <span class="caption">Receta eliminada</span>
+            <% end %>
+          <% else %>
+            <%= link_to "+", new_week_day_menu_day_path(@week, day, meal_type: meal_type), class: "btn btn--ghost btn--sm", style: "width: 100%; justify-content: center;", data: {turbo_frame: "recipe-picker"} %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

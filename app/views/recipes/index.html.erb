@@ -1,0 +1,58 @@
+<% content_for :title, "Recetas" %>
+
+<div class="week-toolbar">
+  <h1 class="display" style="margin: 0;">Recetario</h1>
+  <%= link_to "Nueva receta", new_recipe_path, class: "btn" %>
+</div>
+
+<%= form_with url: recipes_path, method: :get, class: "search-bar" do %>
+  <input type="search" name="q" value="<%= params[:q] %>" placeholder="Buscar por nombre o descripción…">
+  <select name="tag_id">
+    <option value="">Todas las etiquetas</option>
+    <% @tags.each do |tag| %>
+      <option value="<%= tag.id %>" <%= "selected" if params[:tag_id].to_i == tag.id %>><%= tag.name %></option>
+    <% end %>
+  </select>
+  <select name="max_time">
+    <option value="">Cualquier tiempo</option>
+    <option value="15" <%= "selected" if params[:max_time] == "15" %>>≤ 15 min</option>
+    <option value="30" <%= "selected" if params[:max_time] == "30" %>>≤ 30 min</option>
+    <option value="60" <%= "selected" if params[:max_time] == "60" %>>≤ 60 min</option>
+  </select>
+  <%= submit_tag "Filtrar", class: "btn btn--ghost btn--sm" %>
+<% end %>
+
+<% if @recipes.any? %>
+  <div class="recipe-grid">
+    <% @recipes.each do |recipe| %>
+      <div class="card recipe-card">
+        <%= link_to recipe, class: "recipe-card__title", style: "text-decoration: none; color: inherit;" do %>
+          <%= recipe.name %>
+        <% end %>
+        <p style="margin: 0; color: var(--ink-muted); font-size: var(--caption);"><%= truncate(recipe.description.to_s, length: 90) %></p>
+        <div class="recipe-card__meta caption">
+          <span>⏱ <%= recipe.total_time_label %></span>
+          <span>🍽 <%= recipe.base_servings %> porc.</span>
+          <% if recipe.calories_per_serving.present? %>
+            <span>🔥 <%= recipe.calories_per_serving %> kcal</span>
+          <% end %>
+        </div>
+        <% if recipe.tags.any? %>
+          <div class="recipe-card__meta">
+            <% recipe.tags.each do |tag| %>
+              <span class="chip"><%= tag.name %></span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-state__icon">📖</div>
+    <p>No hay recetas que coincidan.</p>
+    <div class="empty-state__cta">
+      <%= link_to "Crear la primera receta", new_recipe_path, class: "btn" %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,37 @@
+<% content_for :title, @list.week.label %>
+
+<div class="shopping-list__header">
+  <div>
+    <h1 class="display" style="margin: 0;">Lista de compras</h1>
+    <p class="caption" style="margin: var(--space-1) 0 0;"><%= @list.week.label %> · <%= @list.total_items %> renglones · <%= @list.purchased_count %> comprados</p>
+  </div>
+  <div style="display: flex; gap: var(--space-3);">
+    <%= link_to "Regenerar", shopping_list_week_path(@list.week), method: :post, class: "btn btn--ghost btn--sm" %>
+    <%= link_to "Ver semana", week_path(@list.week), class: "btn btn--ghost btn--sm" %>
+  </div>
+</div>
+
+<% if @list.list_items.any? %>
+  <% Ingredient::CATEGORIES.each do |category| %>
+    <% items = @list.list_items.select { |i| i.ingredient.category == category } %>
+    <% next if items.empty? %>
+    <div class="list-group">
+      <h2 class="list-group__title"><%= items.first.ingredient.category_label %></h2>
+      <% items.each do |item| %>
+        <div class="list-item <%= "list-item--purchased" if item.purchased? %>">
+          <span class="list-item__qty"><%= item.quantity_label %> <%= item.unit %></span>
+          <span class="list-item__name"><%= item.ingredient.name %></span>
+          <%= button_to item.purchased? ? "↺" : "✓", toggle_item_shopping_list_path(@list, item), method: :patch, class: "btn btn--ghost btn--sm", form: {style: "display: inline;"} %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-state__icon">🛒</div>
+    <p>Esta semana no tiene platillos asignados. Llena la semana primero.</p>
+    <div class="empty-state__cta">
+      <%= link_to "Ir al planificador", week_path(@list.week), class: "btn" %>
+    </div>
+  </div>
+<% end %>

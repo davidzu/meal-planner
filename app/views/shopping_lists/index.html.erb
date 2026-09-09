@@ -1,0 +1,36 @@
+<% content_for :title, "Listas de compras" %>
+
+<h1 class="display">Listas de compras</h1>
+
+<% if @lists.any? %>
+  <div class="card" style="padding: 0;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Semana</th>
+          <th>Renglones</th>
+          <th>Comprados</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @lists.each do |week| %>
+          <tr>
+            <td><%= week.label %></td>
+            <td><%= week.shopping_list.total_items %></td>
+            <td><%= week.shopping_list.purchased_count %></td>
+            <td><%= link_to "Ver", shopping_list_path(week.shopping_list), class: "btn btn--ghost btn--sm" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-state__icon">🛒</div>
+    <p>Aún no has generado ninguna lista.</p>
+    <div class="empty-state__cta">
+      <%= link_to "Ir al planificador", root_path, class: "btn" %>
+    </div>
+  </div>
+<% end %>

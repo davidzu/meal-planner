@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title><%= content_for(:title) || "Meal Planner" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Meal Planner">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag "application" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <header class="app-shell__header">
+      <nav class="app-shell__nav" aria-label="Principal">
+        <%= link_to "Semana", root_path, class: "app-shell__brand" %>
+        <div class="app-shell__links">
+          <%= link_to "Semana", root_path, class: nav_class(root_path) %>
+          <%= link_to "Recetas", recipes_path, class: nav_class(recipes_path) %>
+          <%= link_to "Listas", shopping_lists_path, class: nav_class(shopping_lists_path) %>
+          <%= link_to "Ajustes", settings_path, class: nav_class(settings_path) %>
+        </div>
+      </nav>
+    </header>
+
+    <main class="app-shell__main">
+      <% if notice.present? %>
+        <p class="toast toast--success" data-controller="toast"><%= notice %></p>
+      <% end %>
+      <% if alert.present? %>
+        <p class="toast toast--warning" data-controller="toast"><%= alert %></p>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

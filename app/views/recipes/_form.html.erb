@@ -1,0 +1,81 @@
+<% content_for :title, @recipe.persisted? ? "Editar receta" : "Nueva receta" %>
+
+<div class="week-toolbar">
+  <%= link_to "← Recetario", recipes_path, class: "btn btn--ghost btn--sm" %>
+  <h1 class="display" style="margin: 0;"><%= @recipe.persisted? ? "Editar receta" : "Nueva receta" %></h1>
+</div>
+
+<%= form_with model: @recipe, class: "card form-card" do |f| %>
+  <% if @recipe.errors.any? %>
+    <div class="toast toast--warning">
+      <ul style="margin: 0; padding-left: var(--space-4);">
+        <% @recipe.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name, "Nombre" %>
+    <%= f.text_field :name, required: true, placeholder: "Ej. Birria de res" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description, "Descripción" %>
+    <%= f.text_area :description, rows: 2, placeholder: "Resumen corto para la tarjeta" %>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3);">
+    <div class="field">
+      <%= f.label :prep_time_min, "Tiempo (min)" %>
+      <%= f.number_field :prep_time_min, min: 1 %>
+    </div>
+    <div class="field">
+      <%= f.label :base_servings, "Rinde (porciones)" %>
+      <%= f.number_field :base_servings, min: 1, required: true %>
+    </div>
+    <div class="field">
+      <%= f.label :calories_per_serving, "Kcal/porción" %>
+      <%= f.number_field :calories_per_serving, min: 0 %>
+    </div>
+  </div>
+
+  <div class="field">
+    <%= f.label :tag_ids, "Etiquetas" %>
+    <%= f.collection_select :tag_ids, Tag.order(:name), :id, :name, {}, {multiple: true, size: 4} %>
+    <span class="hint">cena · desayuno_rapido · oaxaqueño …</span>
+  </div>
+
+  <h2 class="heading" style="margin: var(--space-5) 0 var(--space-3);">Ingredientes</h2>
+
+  <%= f.fields_for :recipe_ingredients do |ri| %>
+    <div style="display: grid; grid-template-columns: 2fr 80px 90px 1fr auto; gap: var(--space-2); align-items: end; margin-bottom: var(--space-2);">
+      <div class="field" style="margin: 0;">
+        <%= ri.label :ingredient_id, "Ingrediente" %>
+        <%= ri.collection_select :ingredient_id, Ingredient.order(:name), :id, :name, {include_blank: "—"} %>
+      </div>
+      <div class="field" style="margin: 0;">
+        <%= ri.label :quantity, "Cant." %>
+        <%= ri.number_field :quantity, step: "0.25", min: 0.01 %>
+      </div>
+      <div class="field" style="margin: 0;">
+        <%= ri.label :unit, "Unidad" %>
+        <%= ri.text_field :unit, placeholder: "kg, pieza, taza…" %>
+      </div>
+      <div class="field" style="margin: 0;">
+        <%= ri.label :prep_note, "Nota" %>
+        <%= ri.text_field :prep_note, placeholder: "picado, al gusto…" %>
+      </div>
+      <div style="padding-bottom: var(--space-2);">
+        <%= ri.check_box :_destroy %>
+        <%= ri.label :_destroy, "quitar", class: "caption" %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="form-actions">
+    <%= f.submit @recipe.persisted? ? "Guardar cambios" : "Crear receta", class: "btn" %>
+    <%= link_to "Cancelar", @recipe.persisted? ? @recipe : recipes_path, class: "btn btn--ghost" %>
+  </div>
+<% end %>
