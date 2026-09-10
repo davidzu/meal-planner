@@ -28,3 +28,10 @@
 
 # opencode local state
 .opencode/node_modules
+
+# Build artifacts
+/public/assets
+
+# UI-review screenshots and Playwright MCP artifacts (never commit)
+/.playwright-mcp/
+/*.png
