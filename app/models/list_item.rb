@@ -4,7 +4,7 @@ class ListItem < ApplicationRecord
 
   validates :quantity, presence: true, numericality: {greater_than: 0}
   validates :unit, presence: true
-  validates :ingredient_id, uniqueness: {scope: :shopping_list_id}
+  validates :ingredient_id, uniqueness: {scope: [:shopping_list_id, :unit]}
 
   def quantity_label
     q = quantity.to_f
