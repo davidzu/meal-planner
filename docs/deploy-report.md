@@ -2,7 +2,7 @@
 
 - Date: 2026-09-09
 - Release manager: release-manager bot (Rails pipeline)
-- Verdict: **PRE-FLIGHT PASSED — DEPLOY BLOCKED (stopped by decision)**
+- Verdict: **SHIPPED** (resumed 2026-09-10 after the 402 blocker was cleared — see §8)
 
 The app is fully verified and pushed to GitHub, but the Render deploy was
 stopped at service creation: the workspace has no payment method on file and
@@ -114,3 +114,83 @@ boot errors in logs) could not be run.
    psql into this instance from this machine.
 4. **Repo visibility:** `davidzu/meal-planner` is public (approved). No
    secrets are committed (verified twice).
+
+## 9. Resume observations (2026-09-10)
+
+1. **402 resolved:** API service creation succeeded (HTTP 201) once a
+   payment card was on file — even on the free plan, as previously suspected.
+2. **Slug suffix:** the service URL is `meal-planner-r5v7.onrender.com`
+   (Render appends a suffix when the slug is taken). If a custom domain is
+   added later, remember `RAILS_APP_HOSTS`/`config.hosts` — currently
+   `config.hosts` is unset, so no blocked-host risk.
+3. **Benign boot warnings:** Puma warns about cluster mode with 1 worker
+   (Render sets `WEB_CONCURRENCY=1` by default on free); bundler notes
+   "Cannot write a changed lockfile while frozen" (lockfile is committed and
+   unchanged — nothing to do).
+4. **Free DB expiry:** `sonic-blog-db` expires **2026-10-09** (30-day free
+   tier). Both apps lose their DB then — upgrade the instance or migrate
+   before that date.
+5. **Hygiene:** temp files holding the DB password / master key
+   (`/tmp/opencode/*.json`) shredded after use; no secrets in the report.
+
+## 8. Resume (2026-09-10) — SHIPPED
+
+The user added a payment card in the Render dashboard; the deploy was resumed
+exactly per §6. All steps done via the Render API with `RENDER_API_KEY`
+(from `~/sonic-blog/.env.local`, never committed).
+
+### Service
+
+| | |
+|---|---|
+| Service ID | `srv-dah9d6740ujc73e5k020` |
+| Name / slug | `meal-planner` / `meal-planner-r5v7` (Render appended `r5v7` — the `meal-planner` slug was taken) |
+| URL | **https://meal-planner-r5v7.onrender.com** |
+| Repo / branch | `davidzu/meal-planner` @ `main`, commit `bb0b5e0`, autoDeploy yes |
+| Runtime / plan / region | ruby, free, oregon (matches DB region) |
+| Build / start / health | per `render.yaml`: `bundle install && rails assets:precompile && rails db:prepare` / `rails server` / `/up` |
+| Env vars | `DATABASE_URL` = **internal** connection string of `dpg-dagdnj740ujc73ens3dg-a` with database `meal_planner_production`; `RAILS_MASTER_KEY` (from local `config/master.key`); `RAILS_LOG_TO_STDOUT=true`; `RAILS_SERVE_STATIC_FILES=true` |
+| Database | shared free instance `sonic-blog-db` (only one free PG allowed); `meal_planner_production` created by `db:prepare` inside it — no new instance |
+
+### Deploy timeline (dep `dep-dah9d6f40ujc73e5k120`)
+
+| Time (UTC) | Event |
+|---|---|
+| 11:38:01 | `POST /v1/services` → **HTTP 201** (402 gone after card added); first deploy auto-started |
+| 11:38–11:39 | `build_in_progress` → bundle install (72 gems), assets:precompile (16 digested assets), `db:prepare` |
+| 11:39:36 | `update_in_progress` → Puma boot, `/up` health check 200 |
+| 11:40:06 | **`live`** 🎉 |
+
+Build-log evidence (captured via API):
+- `Created database 'meal_planner_production'` — created inside the shared
+  `sonic-blog-db` instance, as planned.
+- `Seeded: 10 recetas, 42 ingredientes, 12 etiquetas, 2 usuarios, 1 hogar`
+  — seeds ran on the fresh DB (app expects seeded content; `db:prepare`
+  seeds fresh DBs, as validated in pre-flight).
+- `Build successful 🎉`; no errors or warnings beyond the two benign ones
+  listed in §9.
+
+### Live verification (all via curl, 2026-09-10)
+
+| Check | Result |
+|---|---|
+| `GET /` | 200 — `<title>Semana del 07 sep</title>` (week planner with seeded data) |
+| `GET /up` | 200 |
+| `GET /recipes` | 200 — 10 seeded recipe links render (incl. "Birria", "Guisado") |
+| `GET /shopping_lists` | 200 |
+| `GET /settings` | 200 |
+| Digested asset `/assets/application-13809f89.css` | 200 |
+| Runtime logs | clean boot (Puma 8.0.2, Ruby 4.0.6 +YJIT, production); requests log 200s, no error spam |
+
+### API notes for future deploys (differences from the skill notes)
+
+1. `GET /v1/postgres/{id}` no longer returns `connectionInfo`; use the
+   dedicated `GET /v1/postgres/{id}/connection-info` endpoint (returns
+   external/internal strings + password — handle with care, shred temp files).
+2. `POST /v1/services` requires build/start commands under
+   `serviceDetails.envSpecificDetails` (not as direct `serviceDetails` keys).
+3. The logs endpoint rejects `deploy=` as a filter param now
+   ("could not parse filter parameters"); filter by `type=build` +
+   `startTime`/`endTime` instead.
+4. `GET /v1/services/{id}` does not expose env vars — values set at creation
+   are write-only via API; keep a record of what was set (above).
