@@ -1,0 +1,36 @@
+<% if local_assigns[:client_filter] %>
+  <div class="search-bar">
+    <input type="search" placeholder="Buscar receta…" data-picker-filter-target="input" data-action="input->picker-filter#filter">
+  </div>
+<% else %>
+  <%= form_with url: recipes_path, method: :get, class: "search-bar" do %>
+    <input type="search" name="q" value="<%= params[:q] %>" placeholder="Buscar por nombre o descripción…">
+    <select name="tag_id">
+      <option value="">Todas las etiquetas</option>
+      <% tags.each do |tag| %>
+        <option value="<%= tag.id %>" <%= "selected" if params[:tag_id].to_s == tag.id.to_s %>><%= tag.label %></option>
+      <% end %>
+    </select>
+    <select name="max_time">
+      <option value="">Cualquier tiempo</option>
+      <option value="15" <%= "selected" if params[:max_time] == "15" %>>≤ 15 min</option>
+      <option value="30" <%= "selected" if params[:max_time] == "30" %>>≤ 30 min</option>
+      <option value="60" <%= "selected" if params[:max_time] == "60" %>>≤ 60 min</option>
+    </select>
+    <%= submit_tag "Filtrar", class: "btn btn--ghost btn--sm" %>
+  <% end %>
+
+  <div class="chip-row">
+    <%= link_to "Todas", recipes_path(q: params[:q], max_time: params[:max_time]), class: ["chip", ("chip--active" if params[:tag_id].blank?)], aria: { current: (params[:tag_id].blank? ? "true" : nil) } %>
+    <% tags.each do |tag| %>
+      <% active = params[:tag_id].to_s == tag.id.to_s %>
+      <%= link_to tag.label, recipes_path(q: params[:q], tag_id: tag.id, max_time: params[:max_time]), class: ["chip", ("chip--active" if active)], aria: { current: (active ? "true" : nil) } %>
+    <% end %>
+  </div>
+  <div class="chip-row">
+    <%= link_to "Cualquiera", recipes_path(q: params[:q], tag_id: params[:tag_id]), class: ["chip", ("chip--active" if params[:max_time].blank?)], aria: { current: (params[:max_time].blank? ? "true" : nil) } %>
+    <%= link_to "≤15", recipes_path(q: params[:q], tag_id: params[:tag_id], max_time: 15), class: ["chip", ("chip--active" if params[:max_time] == "15")], aria: { current: (params[:max_time] == "15" ? "true" : nil) } %>
+    <%= link_to "≤30", recipes_path(q: params[:q], tag_id: params[:tag_id], max_time: 30), class: ["chip", ("chip--active" if params[:max_time] == "30")], aria: { current: (params[:max_time] == "30" ? "true" : nil) } %>
+    <%= link_to "≤60", recipes_path(q: params[:q], tag_id: params[:tag_id], max_time: 60), class: ["chip", ("chip--active" if params[:max_time] == "60")], aria: { current: (params[:max_time] == "60" ? "true" : nil) } %>
+  </div>
+<% end %>

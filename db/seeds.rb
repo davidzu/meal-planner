@@ -274,4 +274,25 @@ calabacitas = seed_recipe(
   ]
 )
 
+def destroy_review_recipe!(recipe)
+  MenuDay.where(recipe_id: recipe.id).delete_all
+  recipe.destroy!
+end
+
+Recipe.where("name LIKE ? OR name LIKE ? OR name LIKE ?", "Review Mix%", "Review Nested%", "% UI").find_each do |recipe|
+  destroy_review_recipe!(recipe)
+end
+
+Recipe.group(:name).having("COUNT(*) > 1").pluck(:name).each do |name|
+  Recipe.where(name: name).order(:id).offset(1).find_each do |recipe|
+    destroy_review_recipe!(recipe)
+  end
+end
+
+Week.for_household_and_date(household, Date.current).tap do |week|
+  week.people_count ||= 2
+  week.save!
+  week.build_days!
+end
+
 puts "Seeded: #{Recipe.count} recetas, #{Ingredient.count} ingredientes, #{Tag.count} etiquetas, #{User.count} usuarios, #{Household.count} hogar"

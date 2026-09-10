@@ -1,0 +1,11 @@
+<div class="recipe-card-compact">
+  <div class="recipe-card-compact__name"><%= link_to menu_day.recipe.name, menu_day.recipe %></div>
+  <div class="recipe-card-compact__meta"><%= menu_day.recipe.total_time_label %></div>
+  <% servings_id = "menu_day_servings_#{menu_day.id}" %>
+  <%= form_with model: menu_day, url: week_day_menu_day_path(week, day, menu_day), method: :patch, class: "servings-form" do |f| %>
+    <%= f.label :servings, "Porc.", class: "caption", for: servings_id %>
+    <%= f.number_field :servings, min: 1, id: servings_id %>
+    <%= f.submit "OK", class: "btn btn--ghost btn--sm" %>
+  <% end %>
+  <%= button_to "Quitar", week_day_menu_day_path(week, day, menu_day), method: :delete, class: "recipe-card-compact__remove", form: { class: "inline-form" } %>
+</div>

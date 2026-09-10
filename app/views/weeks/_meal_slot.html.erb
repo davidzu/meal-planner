@@ -1,0 +1,8 @@
+<div class="meal-slot <%= menu_day ? "meal-slot--filled" : "meal-slot--empty" %>">
+  <span class="meal-slot__type"><%= meal_type.capitalize %></span>
+  <% if menu_day %>
+    <%= render "recipes/card_compact", week: week, day: day, menu_day: menu_day %>
+  <% else %>
+    <%= link_to "+", new_week_day_menu_day_path(week, day, meal_type: meal_type), class: "btn btn--ghost btn--sm btn--full", data: { turbo_frame: "recipe-picker" } %>
+  <% end %>
+</div>

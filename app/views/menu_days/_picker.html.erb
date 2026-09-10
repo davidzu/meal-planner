@@ -1,0 +1,37 @@
+<div class="picker-overlay">
+  <div class="picker" data-controller="picker-filter">
+    <div class="picker__header">
+      <h2 class="heading">Asignar receta — <%= @day.name %></h2>
+      <div class="caption"><%= @menu_day.meal_type.capitalize %></div>
+      <%= link_to "✕", week_path(@week), class: "picker__close", data: { turbo_frame: "_top" } %>
+    </div>
+
+    <%= render "shared/search_bar", client_filter: true %>
+
+    <div class="picker__list" data-picker-filter-target="list">
+      <% @recipes.each do |recipe| %>
+        <div class="picker__item" data-picker-filter-target="item" data-name="<%= recipe.name.downcase %>">
+          <div>
+            <div class="picker__name"><%= recipe.name %></div>
+            <div class="caption">
+              <%= recipe.total_time_label %> · rinde <%= recipe.base_servings %>
+              <% if recipe.tags.any? %>
+                · <%= recipe.tags.map(&:label).join(", ") %>
+              <% end %>
+            </div>
+          </div>
+          <%= form_with url: week_day_menu_days_path(@week, @day), method: :post, data: { turbo_frame: "_top" } do %>
+            <%= hidden_field_tag "menu_day[meal_type]", @menu_day.meal_type %>
+            <%= hidden_field_tag "menu_day[recipe_id]", recipe.id %>
+            <%= hidden_field_tag "menu_day[servings]", @week.people_count %>
+            <%= submit_tag "Asignar", class: "btn btn--sm" %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="picker__footer">
+      <%= link_to "Nueva receta", new_recipe_path(return_week_id: @week.id, return_day_id: @day.id, return_meal_type: @menu_day.meal_type), class: "btn btn--ghost btn--sm", data: { turbo_frame: "_top" } %>
+    </div>
+  </div>
+</div>

@@ -1,14 +1,14 @@
 <% content_for :title, "Nuevo miembro" %>
 
-<div class="week-toolbar">
+<div class="page-header">
   <%= link_to "← Ajustes", settings_path, class: "btn btn--ghost btn--sm" %>
-  <h1 class="display" style="margin: 0;">Nuevo miembro</h1>
+  <h1 class="display">Nuevo miembro</h1>
 </div>
 
 <%= form_with model: @user, url: users_path, class: "card form-card" do |f| %>
   <% if @user.errors.any? %>
     <div class="toast toast--warning">
-      <ul style="margin: 0; padding-left: var(--space-4);">
+      <ul class="error-list">
         <% @user.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
         <% end %>

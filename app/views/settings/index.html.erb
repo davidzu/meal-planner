@@ -4,7 +4,7 @@
 
 <div class="settings-grid">
   <div>
-    <h2 class="heading" style="margin-bottom: var(--space-3);">Hogar</h2>
+    <h2 class="heading section-heading">Hogar</h2>
     <div class="card">
       <%= form_with model: @household, url: household_path(@household), method: :patch do |f| %>
         <div class="field">
@@ -14,11 +14,12 @@
         <%= f.submit "Guardar", class: "btn btn--sm" %>
       <% end %>
     </div>
+    <p class="settings-note">Tipos de comida: Desayuno, Comida, Cena</p>
   </div>
 
   <div>
-    <div class="week-toolbar" style="margin-bottom: var(--space-3);">
-      <h2 class="heading" style="margin: 0;">Miembros</h2>
+    <div class="week-toolbar members-header">
+      <h2 class="heading">Miembros</h2>
       <%= link_to "Agregar miembro", new_user_path, class: "btn btn--sm" %>
     </div>
 
@@ -29,9 +30,9 @@
             <div><%= member.email %></div>
             <div class="member-row__role"><%= member.role.present? ? member.role.capitalize : "Sin rol" %></div>
           </div>
-          <div style="display: flex; gap: var(--space-2);">
+          <div class="flex-actions">
             <%= link_to "Editar", edit_user_path(member), class: "btn btn--ghost btn--sm" %>
-            <%= button_to "Eliminar", member, method: :delete, class: "btn btn--danger btn--sm", form: {onsubmit: "return confirm('¿Eliminar este miembro?');"} %>
+            <%= button_to "Eliminar", member, method: :delete, class: "btn btn--danger btn--sm", form: { data: { turbo_confirm: "¿Eliminar este miembro?" } } %>
           </div>
         </div>
       <% end %>

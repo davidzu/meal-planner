@@ -1,0 +1,9 @@
+<div class="day-column">
+  <div class="day-column__header">
+    <div class="heading"><%= day.name %></div>
+    <div class="caption"><%= l(day.date, format: "%d") %></div>
+  </div>
+  <% Week::MEAL_TYPES.each do |meal_type| %>
+    <%= render "weeks/meal_slot", week: week, day: day, meal_type: meal_type, menu_day: day.menu_for(meal_type) %>
+  <% end %>
+</div>

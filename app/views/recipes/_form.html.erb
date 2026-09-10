@@ -1,14 +1,20 @@
 <% content_for :title, @recipe.persisted? ? "Editar receta" : "Nueva receta" %>
 
-<div class="week-toolbar">
+<div class="page-header">
   <%= link_to "← Recetario", recipes_path, class: "btn btn--ghost btn--sm" %>
-  <h1 class="display" style="margin: 0;"><%= @recipe.persisted? ? "Editar receta" : "Nueva receta" %></h1>
+  <h1 class="display"><%= @recipe.persisted? ? "Editar receta" : "Nueva receta" %></h1>
 </div>
 
 <%= form_with model: @recipe, class: "card form-card" do |f| %>
+  <% if params[:return_week_id].present? %>
+    <%= hidden_field_tag :return_week_id, params[:return_week_id] %>
+    <%= hidden_field_tag :return_day_id, params[:return_day_id] %>
+    <%= hidden_field_tag :return_meal_type, params[:return_meal_type] %>
+  <% end %>
+
   <% if @recipe.errors.any? %>
     <div class="toast toast--warning">
-      <ul style="margin: 0; padding-left: var(--space-4);">
+      <ul class="error-list">
         <% @recipe.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
         <% end %>
@@ -26,7 +32,12 @@
     <%= f.text_area :description, rows: 2, placeholder: "Resumen corto para la tarjeta" %>
   </div>
 
-  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--space-3);">
+  <div class="field">
+    <%= f.label :instructions, "Instrucciones" %>
+    <%= f.text_area :instructions, rows: 8, placeholder: "Pasos de preparación" %>
+  </div>
+
+  <div class="form-grid-3">
     <div class="field">
       <%= f.label :prep_time_min, "Tiempo (min)" %>
       <%= f.number_field :prep_time_min, min: 1 %>
@@ -43,36 +54,27 @@
 
   <div class="field">
     <%= f.label :tag_ids, "Etiquetas" %>
-    <%= f.collection_select :tag_ids, Tag.order(:name), :id, :name, {}, {multiple: true, size: 4} %>
-    <span class="hint">cena · desayuno_rapido · oaxaqueño …</span>
+    <%= f.collection_select :tag_ids, Tag.order(:name), :id, :label, {}, { multiple: true, size: 4 } %>
+    <span class="hint"><%= Tag.order(:name).map(&:label).join(" · ") %></span>
   </div>
 
-  <h2 class="heading" style="margin: var(--space-5) 0 var(--space-3);">Ingredientes</h2>
+  <h2 class="heading section-heading--spaced">Ingredientes</h2>
 
-  <%= f.fields_for :recipe_ingredients do |ri| %>
-    <div style="display: grid; grid-template-columns: 2fr 80px 90px 1fr auto; gap: var(--space-2); align-items: end; margin-bottom: var(--space-2);">
-      <div class="field" style="margin: 0;">
-        <%= ri.label :ingredient_id, "Ingrediente" %>
-        <%= ri.collection_select :ingredient_id, Ingredient.order(:name), :id, :name, {include_blank: "—"} %>
-      </div>
-      <div class="field" style="margin: 0;">
-        <%= ri.label :quantity, "Cant." %>
-        <%= ri.number_field :quantity, step: "0.25", min: 0.01 %>
-      </div>
-      <div class="field" style="margin: 0;">
-        <%= ri.label :unit, "Unidad" %>
-        <%= ri.text_field :unit, placeholder: "kg, pieza, taza…" %>
-      </div>
-      <div class="field" style="margin: 0;">
-        <%= ri.label :prep_note, "Nota" %>
-        <%= ri.text_field :prep_note, placeholder: "picado, al gusto…" %>
-      </div>
-      <div style="padding-bottom: var(--space-2);">
-        <%= ri.check_box :_destroy %>
-        <%= ri.label :_destroy, "quitar", class: "caption" %>
-      </div>
+  <div data-controller="nested-form">
+    <div data-nested-form-target="container">
+      <%= f.fields_for :recipe_ingredients do |ri| %>
+        <%= render "recipes/ingredient_fields", f: ri %>
+      <% end %>
     </div>
-  <% end %>
+
+    <template data-nested-form-target="template">
+      <%= f.fields_for :recipe_ingredients, RecipeIngredient.new, child_index: "NEW_RECORD" do |ri| %>
+        <%= render "recipes/ingredient_fields", f: ri %>
+      <% end %>
+    </template>
+
+    <button type="button" class="btn btn--ghost btn--sm" data-action="nested-form#add">Agregar ingrediente</button>
+  </div>
 
   <div class="form-actions">
     <%= f.submit @recipe.persisted? ? "Guardar cambios" : "Crear receta", class: "btn" %>

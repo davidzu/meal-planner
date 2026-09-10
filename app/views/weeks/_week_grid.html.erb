@@ -1,0 +1,5 @@
+<div class="week-grid">
+  <% week.days.order(:date).each do |day| %>
+    <%= render "weeks/day_column", week: week, day: day %>
+  <% end %>
+</div>

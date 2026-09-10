@@ -1,0 +1,5 @@
+<div class="list-item <%= "list-item--purchased" if item.purchased? %>">
+  <span class="list-item__qty"><%= item.quantity_label %> <%= item.unit %></span>
+  <span class="list-item__name"><%= item.ingredient.name %></span>
+  <%= button_to item.purchased? ? "↺" : "✓", toggle_item_shopping_list_path(list), method: :patch, params: { item_id: item.id }, class: "btn btn--ghost btn--sm", form: { class: "inline-form" } %>
+</div>

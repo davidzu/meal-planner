@@ -19,10 +19,10 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-controller="native-validation">
     <header class="app-shell__header">
       <nav class="app-shell__nav" aria-label="Principal">
-        <%= link_to "Semana", root_path, class: "app-shell__brand" %>
+        <%= link_to current_household.name, root_path, class: "app-shell__brand" %>
         <div class="app-shell__links">
           <%= link_to "Semana", root_path, class: nav_class(root_path) %>
           <%= link_to "Recetas", recipes_path, class: nav_class(recipes_path) %>
@@ -33,13 +33,10 @@
     </header>
 
     <main class="app-shell__main">
-      <% if notice.present? %>
-        <p class="toast toast--success" data-controller="toast"><%= notice %></p>
-      <% end %>
-      <% if alert.present? %>
-        <p class="toast toast--warning" data-controller="toast"><%= alert %></p>
-      <% end %>
+      <%= render "shared/toast" %>
       <%= yield %>
     </main>
+
+    <turbo-frame id="recipe-picker"></turbo-frame>
   </body>
 </html>

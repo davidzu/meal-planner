@@ -1,0 +1,26 @@
+<div class="ingredient-fields">
+  <div class="field field--flush">
+    <%= f.label :ingredient_id, "Ingrediente" %>
+    <%= f.collection_select :ingredient_id, Ingredient.order(:name), :id, :name, { include_blank: "—" } %>
+  </div>
+  <div class="field field--flush">
+    <%= f.label :ingredient_name, "Nuevo ingrediente" %>
+    <%= f.text_field :ingredient_name, placeholder: "Nuevo ingrediente" %>
+  </div>
+  <div class="field field--flush">
+    <%= f.label :quantity, "Cant." %>
+    <%= f.number_field :quantity, step: "any", min: 0.01 %>
+  </div>
+  <div class="field field--flush">
+    <%= f.label :unit, "Unidad" %>
+    <%= f.text_field :unit, placeholder: "kg, pieza, taza…" %>
+  </div>
+  <div class="field field--flush">
+    <%= f.label :prep_note, "Nota" %>
+    <%= f.text_field :prep_note, placeholder: "picado, al gusto…" %>
+  </div>
+  <div class="field field--flush ingredient-fields__remove">
+    <%= f.check_box :_destroy %>
+    <%= f.label :_destroy, "Quitar", class: "caption" %>
+  </div>
+</div>

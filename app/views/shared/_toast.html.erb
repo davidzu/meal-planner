@@ -1,0 +1,10 @@
+<% if notice.present? || alert.present? %>
+  <div class="toast-stack">
+    <% if notice.present? %>
+      <p class="toast toast--success" data-controller="toast" role="status"><%= notice %></p>
+    <% end %>
+    <% if alert.present? %>
+      <p class="toast toast--warning" data-controller="toast" role="alert"><%= alert %></p>
+    <% end %>
+  </div>
+<% end %>

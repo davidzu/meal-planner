@@ -1,0 +1,49 @@
+<div class="card recipe-card-full">
+  <h1 class="display"><%= recipe.name %></h1>
+
+  <div class="recipe-card__meta caption">
+    <span>⏱ <%= recipe.total_time_label %></span>
+    <span>🍽 <%= recipe.base_servings %> porc.</span>
+    <% if recipe.calories_per_serving.present? %>
+      <span>🔥 <%= recipe.calories_per_serving %> kcal/porc.</span>
+    <% end %>
+    <% if recipe.author.present? %>
+      <span>👩‍🍳 <%= recipe.author.email %></span>
+    <% end %>
+  </div>
+
+  <% if recipe.tags.any? %>
+    <div class="recipe-card__meta">
+      <% recipe.tags.each do |tag| %>
+              <span class="chip"><%= tag.label %></span>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if recipe.description.present? %>
+    <p class="recipe-card-full__description"><%= recipe.description %></p>
+  <% end %>
+
+  <h2 class="heading section-heading">Ingredientes</h2>
+  <% if recipe.recipe_ingredients.any? %>
+    <ul class="ingredient-list">
+      <% recipe.recipe_ingredients.each do |ri| %>
+        <li>
+          <%= ri.quantity.to_f == ri.quantity.to_i ? ri.quantity.to_i : ri.quantity %> <%= ri.unit %> de <%= ri.ingredient.name %>
+          <% if ri.prep_note.present? %>
+            <em class="caption">(<%= ri.prep_note %>)</em>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class="caption">Sin ingredientes registrados.</p>
+  <% end %>
+
+  <h2 class="heading section-heading">Instrucciones</h2>
+  <% if recipe.instructions.present? %>
+    <div class="recipe-instructions"><%= recipe.instructions %></div>
+  <% else %>
+    <p class="caption">Sin instrucciones.</p>
+  <% end %>
+</div>

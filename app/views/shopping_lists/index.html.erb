@@ -3,7 +3,7 @@
 <h1 class="display">Listas de compras</h1>
 
 <% if @lists.any? %>
-  <div class="card" style="padding: 0;">
+  <div class="card card--flush">
     <table class="table">
       <thead>
         <tr>
@@ -26,11 +26,5 @@
     </table>
   </div>
 <% else %>
-  <div class="empty-state">
-    <div class="empty-state__icon">🛒</div>
-    <p>Aún no has generado ninguna lista.</p>
-    <div class="empty-state__cta">
-      <%= link_to "Ir al planificador", root_path, class: "btn" %>
-    </div>
-  </div>
+  <%= render "shared/empty_state", icon: "🛒", message: "Aún no has generado ninguna lista.", cta: link_to("Ir al planificador", root_path, class: "btn") %>
 <% end %>

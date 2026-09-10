@@ -1,0 +1,9 @@
+<div class="empty-state">
+  <% if local_assigns[:icon].present? %>
+    <div class="empty-state__icon"><%= icon %></div>
+  <% end %>
+  <p><%= message %></p>
+  <% if local_assigns[:cta].present? %>
+    <div class="empty-state__cta"><%= cta %></div>
+  <% end %>
+</div>
