@@ -194,3 +194,14 @@ Build-log evidence (captured via API):
    `startTime`/`endTime` instead.
 4. `GET /v1/services/{id}` does not expose env vars — values set at creation
    are write-only via API; keep a record of what was set (above).
+5. **Auto-deploy does not fire on push:** the Render GitHub App is not
+   installed on `davidzu/meal-planner` (build logs: "we don't have access to
+   your repo, but we'll try to clone it anyway" — works only because the
+   repo is public). Pushes create no webhook deploys. Until the app is
+   installed, trigger deploys manually: `POST /v1/services/{id}/deploys`
+   with `{}` (note: `clearCache: "preserve"` is rejected with 400; empty
+   body works). Done for the report commit: deploy
+   `dep-dah9h9ajnfac738sr610` (commit `7dee20d`) → live 11:47:49 UTC, site
+   re-verified (/, /up, /recipes, /shopping_lists, /settings all 200).
+   Installing the GitHub App on the repo would also allow making it private
+   again (§6 step 6).
