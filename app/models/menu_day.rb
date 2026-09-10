@@ -4,7 +4,7 @@ class MenuDay < ApplicationRecord
 
   validates :meal_type, presence: true, inclusion: {in: Week::MEAL_TYPES}
   validates :servings, presence: true, numericality: {only_integer: true, greater_than: 0}
-  validates :recipe_id, uniqueness: {scope: [:day_id, :meal_type]}
+  validates :meal_type, uniqueness: {scope: :day_id}
 
   delegate :name, :prep_time_min, :base_servings, to: :recipe, prefix: true
 

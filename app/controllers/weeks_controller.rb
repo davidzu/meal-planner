@@ -1,41 +1,49 @@
 class WeeksController < ApplicationController
-  before_action :set_household
-  before_action :set_week, only: [:update, :copy]
+  before_action :set_week, only: [:update, :copy, :clear]
 
-  # GET / — current week planner (default screen)
   def show
-    @week = Week.for_household_and_date(@household, params[:date] || Date.today)
-    @week.save! unless @week.persisted?
+    if params[:id].present?
+      @week = current_household.weeks.find(params[:id])
+    else
+      @week = Week.for_household_and_date(current_household, params[:date] || Date.current)
+      @week.save! if @week.new_record?
+    end
     @week.build_days!
-    @previous_week = Week.where(household: @household).where("start_date < ?", @week.start_date).order(start_date: :desc).first
-    @next_week = Week.where(household: @household).where("start_date > ?", @week.start_date).order(start_date: :asc).first
+    prepare_week_navigation
   end
 
-  # PATCH/PUT /weeks/:id
   def update
     if @week.update(week_params)
       redirect_to week_path(@week), notice: "Semana actualizada."
     else
+      @week.build_days!
+      prepare_week_navigation
       render :show, status: :unprocessable_entity
     end
   end
 
-  # GET /weeks/:id/copy/:source_week_id
   def copy
-    source = Week.find(params[:source_week_id])
-    @week.build_days! unless @week.persisted?
+    source = current_household.weeks.find(params[:source_week_id])
+    @week.build_days!
     @week.copy_from(source)
     redirect_to week_path(@week), notice: "Semana copiada desde #{source.label}."
   end
 
-  private
-
-  def set_household
-    @household = Household.first || Household.create!(name: "Mi hogar")
+  def clear
+    @week.clear!
+    redirect_to week_path(@week), notice: "Semana vaciada."
   end
 
+  private
+
   def set_week
-    @week = Week.find(params[:id])
+    @week = current_household.weeks.find(params[:id])
+  end
+
+  def prepare_week_navigation
+    @previous_start_date = @week.previous_start_date
+    @next_start_date = @week.next_start_date
+    @previous_week = current_household.weeks.where("start_date < ?", @week.start_date).order(start_date: :desc).first
   end
 
   def week_params

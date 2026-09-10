@@ -10,6 +10,7 @@ class ShoppingList < ApplicationRecord
   # same ingredient produce separate rows (500 g + 1 kg → two rows).
   def regenerate!
     transaction do
+      save! if new_record?
       list_items.destroy_all
 
       totals = Hash.new { |h, k| h[k] = {quantity: 0.0, unit: nil} }

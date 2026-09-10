@@ -1,36 +1,28 @@
 Rails.application.routes.draw do
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Week Planner — default screen (sitemap: App → Week Planner)
   root "weeks#show"
+
   resources :weeks, only: [:show, :update] do
     member do
-      get  "copy/:source_week_id", to: "weeks#copy", as: :copy
-      post "shopping_list", to: "shopping_lists#create", as: :shopping_list
+      post :copy
+      post :clear
+      post :shopping_list, to: "shopping_lists#create"
     end
-
     resources :days, only: [] do
-      resources :menu_days, only: [:new, :create, :destroy]
+      resources :menu_days, only: [:new, :create, :update, :destroy]
     end
   end
 
-  # Recipes — Library (sitemap: App → Recipes)
   resources :recipes do
-    collection do
-      get "search", to: "recipes#search", as: :search
-    end
+    collection { get :search }
   end
 
-  # Shopping Lists — current week + archive (sitemap: App → Shopping Lists)
-  resources :shopping_lists, only: [:show, :index] do
-    member do
-      patch "toggle_item/:item_id", to: "shopping_lists#toggle_item", as: :toggle_item
-    end
+  resources :shopping_lists, only: [:index, :show] do
+    member { patch :toggle_item }
   end
 
-  # Settings — household members (sitemap: App → Settings)
-  resources :settings, only: [:index]
-  resources :households, only: [:show, :edit, :update]
+  get "settings", to: "settings#index", as: :settings
+  resources :households, only: [:update]
   resources :users, only: [:new, :create, :edit, :update, :destroy]
 end

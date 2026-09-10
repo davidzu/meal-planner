@@ -7,6 +7,8 @@ class Recipe < ApplicationRecord
   has_many :tags, through: :recipe_tags
   has_many :menu_days, dependent: :restrict_with_error
 
+  accepts_nested_attributes_for :recipe_ingredients, allow_destroy: true, reject_if: :all_blank
+
   validates :name, presence: true
   validates :prep_time_min, numericality: {only_integer: true, greater_than: 0}, allow_nil: true
   validates :base_servings, presence: true, numericality: {only_integer: true, greater_than: 0}
@@ -17,7 +19,6 @@ class Recipe < ApplicationRecord
   }
   scope :by_tag, ->(tag_id) { joins(:recipe_tags).where(recipe_tags: {tag_id: tag_id}) if tag_id.present? }
   scope :by_max_time, ->(minutes) { where("prep_time_min <= ?", minutes) if minutes.present? }
-  scope :by_difficulty, ->(difficulty) { where(difficulty: difficulty) if difficulty.present? }
 
   def total_time_label
     return "—" if prep_time_min.blank?

@@ -1,4 +1,6 @@
 class RecipeIngredient < ApplicationRecord
+  attr_accessor :ingredient_name
+
   belongs_to :recipe
   belongs_to :ingredient
 

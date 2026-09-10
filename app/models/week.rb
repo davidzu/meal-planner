@@ -46,6 +46,18 @@ class Week < ApplicationRecord
     filled_slot_count >= 21
   end
 
+  def previous_start_date
+    start_date - 7.days
+  end
+
+  def next_start_date
+    start_date + 7.days
+  end
+
+  def clear!
+    MenuDay.where(day_id: days.select(:id)).destroy_all
+  end
+
   def copy_from(other_week)
     other_week.days.includes(:menu_days).each do |source_day|
       # Match by offset within the week (Mon→Mon), not by date.
